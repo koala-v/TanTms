@@ -40,11 +40,11 @@ namespace WebApi.ServiceModel.TMS
                 {
                     using (var db = DbConnectionFactory.OpenDbConnection())
                     {
-                       string strSQL = "Select  DocumentPath From Saco1 ";
+                       string strSQL = "Select  eDocumentPath From Saco1 ";
                         List<Saco1> saco1 = db.Select<Saco1>(strSQL);
                         if (saco1.Count > 0)
                         {
-                            folderPath = saco1[0].DocumentPath  + "\\"+request.TableName+"\\" + request.Key;
+                            folderPath = saco1[0].eDocumentPath  + "\\"+request.TableName+"\\" + request.Key;
                         }
                     }
                     if (!Directory.Exists(folderPath))

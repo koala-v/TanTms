@@ -37,8 +37,8 @@ namespace WebApi.ServiceModel.TMS
                     string strAemp1Where = "Where CONVERT(varchar(20),PickupDateTime ,112)=(select convert(varchar(10),getdate(),112))  and Driver1Code ='" + request.DriverCode + "'";
                     string strAido1Where = "Where  CONVERT(varchar(20),DeliveryDate ,112)=(select convert(varchar(10),getdate(),112))  and DriverCode ='" + request.DriverCode + "'";
                     strSql = "  select cast(TrxNo as varchar(20)) as 'Key','Aemp1' as TableName, 'Collect' as DCFlag ,'' as UpdatedFlag ,isnull((cast(pcs as nvarchar(20))+' ' +UomCode),'') as PcsUom ," +
-                        "  PickupDateTime as TimeFrom  ,  DeliveryToName as DeliveryToName, DeliveryToAddress1 as DeliveryToAddress1 , " +
-                        "  DeliveryToAddress2 as DeliveryToAddress2 ,DeliveryToAddress3 as DeliveryToAddress3 ,DeliveryToAddress4 as DeliveryToAddress4 , " +
+                        "  PickupDateTime as TimeFrom  ,  CollectFromName as DeliveryToName, CollectFromAddress1 as DeliveryToAddress1 , " +
+                        "  CollectFromAddress2 as DeliveryToAddress2 ,CollectFromAddress3 as DeliveryToAddress3 ,CollectFromAddress4 as DeliveryToAddress4 , " +
                         "  GrossWeight as Weight,Volume ,isnull(DeliveryInstruction1,'') as DeliveryInstruction1, isnull(DeliveryInstruction2,'') as DeliveryInstruction2, " +
                         "  isnull(DeliveryInstruction3, '') as DeliveryInstruction3,Remark as Remark,AttachmentFlag as AttachmentFlag ,isnull(JobNo,'') as JobNo,Case StatusCode When 'POD' then 'POD' Else (Case (Select Top 1 StatusCode from jmjm3 Where JobNo = Aemp1.JobNo Order By LineItemNo DESC) When 'CANCEL' then 'CANCEL' else Aemp1.StatusCode END) END AS StatusCode,'' AS CancelDescription  , " +
                         "  Driver1Code as  DriverCode , CONVERT(varchar(20),PickupDateTime ,112) as FilterTime , " +
@@ -70,15 +70,15 @@ namespace WebApi.ServiceModel.TMS
                 {
                     if (request.TableName == "Aemp1")
                     {
-
+                        
                         db.Update(request.TableName,
-                            " Remark = '" + request.Remark + "',StatusCode = 'POD'",
+                            " Remark = '" + request.Remark + "',StatusCode = 'POD',ActualPickUpDateTime=getdate()",
                             " TrxNo='" + request.Key + "'");
                     }
                     else
                     {
                         db.Update(request.TableName,
-                           "  Remark = '" + request.Remark + "',StatusCode = 'POD'",
+                           "  Remark = '" + request.Remark + "',StatusCode = 'POD',ActualDeliveryDateTime=getdate()",
                            "  DeliveryOrderNo='" + request.Key + "'");
                     }
 
