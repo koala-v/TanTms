@@ -41,7 +41,7 @@ app.controller('JoblistingListCtrl', ['ENV', '$scope', '$state', '$ionicLoading'
 
         var showAemp1WithAido1 = function () {
             if (!ENV.fromWeb) {
-                if (is.not.equal($cordovaNetwork.getNetwork(), 'wifi')) {
+                if ($cordovaNetwork.isOffline()) {
                     ENV.wifi = false;
                 } else {
                     ENV.wifi = true;
@@ -370,7 +370,7 @@ app.controller('JoblistingDetailCtrl', ['ENV', '$scope', '$state', '$ionicAction
                             }
                             var UpdatedValue = 'Y';
                             if (!ENV.fromWeb) {
-                                if (is.not.equal($cordovaNetwork.getNetwork(), 'wifi')) {
+                                  if ($cordovaNetwork.isOffline()) {
                                     ENV.wifi = false;
                                     UpdatedValue = 'N';
                                 } else {
@@ -491,7 +491,7 @@ app.controller('JoblistingConfirmCtrl', ['ENV', '$scope', '$state', '$stateParam
             }
             var UpdatedValue = 'Y';
             if (!ENV.fromWeb) {
-                if (is.not.equal($cordovaNetwork.getNetwork(), 'wifi')) {
+                if ($cordovaNetwork.isOffline()) {
                     ENV.wifi = false;
                     UpdatedValue = 'N';
                 } else {
