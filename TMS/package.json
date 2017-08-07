@@ -47,7 +47,8 @@
     "cordova-plugin-image-picker",
     "cordova-plugin-file-transfer",
     "cordova-plugin-geolocation",
-    "cordova-plugin-crosswalk-webview"
+    "cordova-plugin-crosswalk-webview",
+    "cordova-plugin-googlemaps"
   ],
   "cordovaPlatforms": [
     "android"

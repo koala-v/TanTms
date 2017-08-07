@@ -284,7 +284,7 @@ app.controller('JoblistingDetailCtrl', ['ENV', '$scope', '$state', '$ionicAction
         };
         $scope.showGoogleMaps = function () {
             $state.go('googleMaps', {}, {});
-        }
+        };
         $scope.uploadPhoto = function () {
             var jsonData = {
                 'Base64': $scope.capture,

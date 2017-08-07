@@ -32,5 +32,5 @@ appConfig.constant('ENV', {
     updateFile: 'update.json',
     rootPath: 'TANTMS',
     configFile: 'config.txt',
-    version: '1.0.1.1',
+    version: '1.0.1.2',
 });

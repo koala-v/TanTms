@@ -35,6 +35,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\..\App\WMS-EGDC\WebApi\API\API\bin\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="ServiceStack, Version=3.9.71.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\ServiceStack.3.9.71\lib\net35\ServiceStack.dll</HintPath>
       <Private>True</Private>

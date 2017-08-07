@@ -69,9 +69,30 @@ namespace WebApi.ServiceModel.TMS
                                 if (strJobNo != "")
                                 {
                                     if (strActualArrivalDate != "") {
+                                        int count = db.Scalar<int>("Select Count(JobNo) from Jmjm3 where JobNo='" + Modfunction.SQLSafe(strJobNo) + "' and Description = 'ACTUAL ARRIVAL DATE'" );
+                                        if (count > 0)
+                                        {
                                     db.Update("Jmjm3",
                                       " DateTime = '" + Modfunction.SQLSafe(strActualArrivalDate) + "'",
-                                      " JobNo='" + strJobNo + "' and Description = 'ACTUAL ARRIVAL DATE'");
+                                              " JobNo='" + Modfunction.SQLSafe(strJobNo) + "' and Description = 'ACTUAL ARRIVAL DATE'");
+                                        }
+                                        else {
+                                            count = db.Scalar<int>("Select Max(LineItemNo) from Jmjm3 where JobNo='" + Modfunction.SQLSafe(strJobNo) + "'");
+                                            count = count + 1;
+                                            string updateBy= db.Scalar<string>("Select DeliveryAgentCode from jmjm1 Where JobNo='" + Modfunction.SQLSafe(strJobNo) + "'");
+                                            db.Insert(new Jmjm3
+                                            {
+                                                JobNo = strJobNo,
+                                                DateTime = Convert.ToDateTime(strActualArrivalDate),
+                                                UpdateDatetime = DateTime.Now,
+                                                LineItemNo = count,
+                                                AutoFlag = "N",
+                                                StatusCode = "",
+                                                UpdateBy = updateBy,
+                                                Description = "ACTUAL ARRIVAL DATE"
+                                            });                                        
+                                        }
+
                                     }
                                     if (strDeliveryDate != "") { 
                                     db.Update("Jmjm1",
