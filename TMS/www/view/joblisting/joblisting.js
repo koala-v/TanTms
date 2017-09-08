@@ -1,6 +1,6 @@
 'use strict';
-app.controller('JoblistingListCtrl', ['ENV', '$scope', '$state', '$ionicLoading', '$ionicPopup', '$ionicFilterBar', '$ionicActionSheet', '$cordovaNetwork', 'ApiService', '$ionicPlatform', '$cordovaSQLite', 'SqlService',
-    function (ENV, $scope, $state, $ionicLoading, $ionicPopup, $ionicFilterBar, $ionicActionSheet, $cordovaNetwork, ApiService, $ionicPlatform, $cordovaSQLite, SqlService) {
+app.controller('JoblistingListCtrl', ['ENV', '$scope', '$state', '$ionicLoading', '$ionicPopup', '$ionicFilterBar', '$ionicActionSheet', '$cordovaNetwork','$timeout', 'ApiService', '$ionicPlatform', '$cordovaSQLite', 'SqlService',
+    function (ENV, $scope, $state, $ionicLoading, $ionicPopup, $ionicFilterBar, $ionicActionSheet, $cordovaNetwork,$timeout, ApiService, $ionicPlatform, $cordovaSQLite, SqlService) {
         var filterBarInstance = null;
         var dataResults = new Array();
         var hmAemp1WithAido1 = new HashMap();
@@ -338,6 +338,32 @@ app.controller('JoblistingDetailCtrl', ['ENV', '$scope', '$state', '$ionicAction
                 }
             });
         };
+
+        $scope.refresh = function () {
+          var objUri = ApiService.Uri(true, '/api/tms/aemp1withaido1');
+          objUri.addSearch('DriverCode', sessionStorage.getItem("sessionDriverCode"));
+          objUri.addSearch('TableName', $scope.Detail.aemp1WithAido1.TableName);
+          objUri.addSearch('Key', $scope.Detail.aemp1WithAido1.Key);
+          ApiService.Get(objUri, true).then(function success(result) {
+              var results = result.data.results;
+              if (is.not.empty(results)) {
+                  var obj= results[0];
+                  // var objTobk1RmRemark = objTobk1;
+                  var filter = " Key='" + obj.Key + "' and TableName='" + obj.TableName + "'";
+                  // delete objTobk1RmRemark.Remark;
+                  // delete objTobk1RmRemark.Key;
+                  delete obj.__type;
+                  // if ($scope.Detail.Tobk1.UpdateRemarkFlag === 'Y') {
+                  //     objTobk1RmRemark.Remark = $scope.Detail.Tobk1.Remark;
+                  //     objTobk1RmRemark.UpdateRemarkFlag = $scope.Detail.Tobk1.UpdateRemarkFlag;
+                  // }
+                  $scope.Detail.aemp1WithAido1 = obj;
+                  SqlService.Update('Aemp1_Aido1', obj, filter).then(function (res) {});
+
+              }
+          });
+      };
+
         $scope.closeModal = function () {
             $scope.modal_camera.hide();
         };

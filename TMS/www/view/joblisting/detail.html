@@ -10,7 +10,6 @@
         <div class="card">
             <div class="button-bar">
                 <a class="button" ng-href="tel:{{Detail.aemp1WithAido1.PhoneNumber}}">
-           <!-- <a class="button" ng-href="tel:0123456789010"> -->
                     CALL
                 </a>
                 <button class="button" ng-click="showGoogleMaps()">
@@ -19,11 +18,12 @@
                 <button class="button" ng-click="showActionSheet()">
                     CAMERA
                 </button>
+                <button class="button icon ion-android-refresh" ng-click="refresh()">
+            </button>
             </div>
             <div class="item" style="padding: 0px">
                 <div class="row">
                     <div class="col ">
-
                         <p>Pcs: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span ng-bind="Detail.aemp1WithAido1.PcsUom"></span></p>
                     </div>
                     <!-- <div class="col">

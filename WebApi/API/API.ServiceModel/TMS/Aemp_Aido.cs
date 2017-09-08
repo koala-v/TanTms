@@ -34,8 +34,36 @@ namespace WebApi.ServiceModel.TMS
                 using (var db = DbConnectionFactory.OpenDbConnection("TMS"))
                 {
                     string strSql = "";
-                    string strAemp1Where = "Where CONVERT(varchar(20),PickupDateTime ,112)=(select convert(varchar(10),getdate(),112))  and Driver1Code ='" + request.DriverCode + "'";
-                    string strAido1Where = "Where  CONVERT(varchar(20),DeliveryDate ,112)=(select convert(varchar(10),getdate(),112))  and DriverCode ='" + request.DriverCode + "'";
+                    string strRefreshAemp1 = "";
+                    string strRefreshSido1 = "";
+                    string strRefreshAido1 = "";
+                    if (request.TableName == "Aemp1")
+                    {
+                        strRefreshAemp1 = " And TrxNo ='" + request.Key + "'";
+
+                        strRefreshSido1 = " And TrxNo =0 ";
+                        strRefreshAido1 = " And DeliveryOrderNo = 0 ";
+                    }
+                    else if (request.TableName == "Aido1")
+                    {
+                        strRefreshAido1 = " And DeliveryOrderNo ='" + request.Key + "'";
+
+                        strRefreshAemp1 = " And TrxNo =0 ";
+                        strRefreshSido1 = " And TrxNo =0 ";
+                    }
+                    else if (request.TableName == "Sido1")
+                    {
+                        strRefreshSido1 = " And TrxNo ='" + request.Key + "'";
+
+                        strRefreshAemp1 = " And TrxNo =0 ";
+                        strRefreshAido1 = " And DeliveryOrderNo =0 ";
+                    }
+                    
+                    string strAemp1Where = "Where CONVERT(varchar(20),PickupDateTime ,112)=(select convert(varchar(10),getdate(),112))  and Driver1Code ='" + request.DriverCode +"' " +strRefreshAemp1 ;
+
+                    string strAido1Where = "Where CONVERT(varchar(20),DeliveryDate ,112)=(select convert(varchar(10),getdate(),112))  and DriverCode ='" + request.DriverCode+"'"+ strRefreshAido1;
+                    string strSido1Where = "Where CONVERT(varchar(20),CollectDateTime ,112)=(select convert(varchar(10),getdate(),112))  and DriverCode ='" + request.DriverCode + "'" + strRefreshSido1;    
+                     
                     strSql = "  select cast(TrxNo as varchar(20)) as 'Key','Aemp1' as TableName, 'Collect' as DCFlag ,'' as UpdatedFlag ,isnull((cast(pcs as nvarchar(20))+' ' +UomCode),'') as PcsUom ," +
                         "  PickupDateTime as TimeFrom  ,  CollectFromName as DeliveryToName, CollectFromAddress1 as DeliveryToAddress1 , " +
                         "  CollectFromAddress2 as DeliveryToAddress2 ,CollectFromAddress3 as DeliveryToAddress3 ,CollectFromAddress4 as DeliveryToAddress4 , " +
@@ -52,8 +80,18 @@ namespace WebApi.ServiceModel.TMS
                         "  isnull(DeliveryInstruction3,'') as DeliveryInstruction3,Remark as Remark,AttachmentFlag as AttachmentFlag,isnull(JobNo,'') as JobNo,Case StatusCode When 'POD' then 'POD' Else (Select Top 1 StatusCode from jmjm3 Where JobNo = Aido1.JobNo Order By LineItemNo DESC) END AS StatusCode,'' AS CancelDescription  , " +
                         "  DriverCode as DriverCode , CONVERT(varchar(20),DeliveryDate ,112) as FilterTime , " +
                         "  isnull((select top 1 case isnull(Rcbp1.Handphone1, '') when '' then isnull(Rcbp1.Telephone, '')  else Rcbp1.Handphone1 end   from rcbp1 where rcbp1.BusinessPartyCode = aido1.DeliveryToCode ), '')  AS PhoneNumber" +
-                        "  from Aido1   " + strAido1Where + "";
-                    Result = db.Select<Aemp1_Aido1>(strSql);
+                        "  from Aido1   " + strAido1Where + 
+                        "  UNION all " +
+                        "  select cast(TrxNo as varchar(20)) as 'Key','Sido1' as TableName, 'Collect' as DCFlag ,'' as UpdatedFlag ,isnull((cast(TotalPcs as nvarchar(20)) ), '') as PcsUom ," +
+                        "  CollectDateTime as TimeFrom  ,  CollectFromName as DeliveryToName, CollectFromAddress1 as DeliveryToAddress1 , " +
+                        "  CollectFromAddress2 as DeliveryToAddress2 ,CollectFromAddress3 as DeliveryToAddress3 ,CollectFromAddress4 as DeliveryToAddress4 , " +
+                        "  TotalGrossWeight as Weight,TotalVolume as Volume ,isnull(DeliveryInstruction1,'') as DeliveryInstruction1, isnull(DeliveryInstruction2,'') as DeliveryInstruction2, " +
+                        "  isnull(DeliveryInstruction3, '') as DeliveryInstruction3,Remark as Remark,AttachmentFlag as AttachmentFlag ,isnull(JobNo,'') as JobNo,Case StatusCode When 'POD' then 'POD' Else (Case (Select Top 1 StatusCode from jmjm3 Where JobNo = Sido1.JobNo Order By LineItemNo DESC) When 'CANCEL' then 'CANCEL' else Sido1.StatusCode END) END AS StatusCode,'' AS CancelDescription  , " +
+                        "  DriverCode as  DriverCode , CONVERT(varchar(20),CollectDateTime ,112) as FilterTime , " +
+                        "  isnull((select top 1 case isnull(Rcbp1.Handphone1, '') when '' then isnull(Rcbp1.Telephone, '')  else Rcbp1.Handphone1 end   from rcbp1 where rcbp1.BusinessPartyCode = Sido1.CollectFromCode ), '')  AS PhoneNumber" +
+                        "  from Sido1 " + strSido1Where + "";
+
+             Result = db.Select<Aemp1_Aido1>(strSql);
 
                 }
             }
@@ -70,11 +108,17 @@ namespace WebApi.ServiceModel.TMS
                 {
                     if (request.TableName == "Aemp1")
                     {
-                        
+
                         db.Update(request.TableName,
                             " Remark = '" + request.Remark + "',StatusCode = 'POD',ActualPickUpDateTime=getdate()",
                             " TrxNo='" + request.Key + "'");
                     }
+                    else if (request.TableName == "Sido1") {
+
+                        db.Update(request.TableName,
+                            " Remark = '" + request.Remark + "',StatusCode = 'POD'",
+                            " TrxNo='" + request.Key + "'");
+                    }           
                     else
                     {
                         db.Update(request.TableName,
@@ -145,7 +189,14 @@ namespace WebApi.ServiceModel.TMS
                                             db.Update(strTableName,
                                               " Remark = '" + Modfunction.SQLSafe(strRemark) + "'",
                                               " TrxNo='" + strKey + "'");
+                                        }else if (strTableName == "Sido1")
+                                        {
+
+                                            db.Update(strTableName,
+                                              " Remark = '" + Modfunction.SQLSafe(strRemark) + "'",
+                                              " TrxNo='" + strKey + "'");
                                         }
+
                                         else
                                         {
                                             db.Update(strTableName,
@@ -160,6 +211,11 @@ namespace WebApi.ServiceModel.TMS
                                     if (strTableName == "Aemp1")
                                     {
 
+                                        db.Update(strTableName,
+                                          " Remark = '" + Modfunction.SQLSafe(strRemark) + "',StatusCode = '" + strStatusCode + "'",
+                                          " TrxNo='" + strKey + "'");
+                                    } else if (strTableName == "Sido1")
+                                    {
                                         db.Update(strTableName,
                                           " Remark = '" + Modfunction.SQLSafe(strRemark) + "',StatusCode = '" + strStatusCode + "'",
                                           " TrxNo='" + strKey + "'");

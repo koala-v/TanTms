@@ -111,9 +111,10 @@ namespace WebApi.ServiceModel.TMS
 
                 if (request.TableName == "Aemp1")
                 {
-                    strPath = DocumentPath + "\\"+request.TableName  +"\\" + request.Key + "\\" + "signature.png";          /*20160518 download file path for signature.png*/
-                }
-                else {
+                    strPath = DocumentPath + "\\" + request.TableName + "\\" + request.Key + "\\" + "signature.png";          /*20160518 download file path for signature.png*/
+                }     
+                else
+                {
                     strPath = DocumentPath + "\\" + request.TableName + "\\" + request.Key + "\\" + "signature.png";          /*20160518 download file path for signature.png*/
                 }
               

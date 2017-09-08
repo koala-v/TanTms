@@ -10,6 +10,7 @@
     </ion-header-bar>
     <ion-content>
         <div style="height: 43px;"></div>
+            <ion-refresher pulling-icon="ion-arrow-down-b" on-refresh="refreshItems()"></ion-refresher>
         <div class="list">
             <ion-list can-swipe="true" tabindex="-1" id="div-list">
                 <ion-item nav-clear menu-close class="item item-icon-right" ng-repeat="job in jobs" ng-click="gotoDetail(job)">
