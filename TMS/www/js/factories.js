@@ -50,6 +50,7 @@ appFactory.factory('TABLE_DB', function () {
             FilterTime: 'TEXT',
             PhoneNumber: 'TEXT',
             TempBase64: 'TEXT',
+            SignBy: 'TEXT',
         },
         Jmjm1: {
             JobNo: 'TEXT',

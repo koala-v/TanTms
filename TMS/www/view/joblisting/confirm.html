@@ -28,6 +28,13 @@
                     <a class="button  icon-left iconfont ion-android-refresh button-clear button-positive" ng-click="clearCanvas()">Clear</a>
                 </div>
             </div>
+            <div>
+            <ion-radio ng-repeat="item in OnBehalfOfs" ng-value="item.value" ng-model="OnBehalfOfItem.NewItem" ng-change="serverSideChange(item)">
+                {{ item.text }}
+            </ion-radio>
+            <input ng-model="OnBehalfOfItem.BehalfName" type="text" placeholder="Name" ng-show="OnBehalfOfItem.NewItem =='OnBehalfOf'">
+
+        </div>
         </div>
     </ion-content>
     <ion-footer-bar class="bar-positive ">

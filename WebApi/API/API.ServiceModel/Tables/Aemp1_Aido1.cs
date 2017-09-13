@@ -31,6 +31,7 @@ namespace WebApi.ServiceModel.Tables
         public string DriverCode { get; set; }
         public string FilterTime { get; set; }
         public string PhoneNumber { get; set; }
+        public string SignBy { get; set; }
 
 
     }

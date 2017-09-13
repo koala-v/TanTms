@@ -8,8 +8,37 @@
     <ion-content>
         <div style="height: 43px;"></div>
         <div class="card">
-            <div class="button-bar">
-                <a class="button" ng-href="tel:{{Detail.aemp1WithAido1.PhoneNumber}}">
+
+            <div class="row">
+                <div class="col">
+                    <a class="button" style="background-color:White;" ng-href="tel:{{Detail.aemp1WithAido1.PhoneNumber}}">
+                        CALL
+                    </a>
+                </div>
+                <div class="col">
+                    <button class="button" style="background-color:White;"   ng-click="showGoogleMaps()">
+                        MAP
+                    </button>
+                  </div>
+                <!-- <div class="col">
+                    <button class="button" style="background-color:White;" ng-click="">
+                        MAP
+                    </button>
+                </div> -->
+
+                <div class="col">
+                    <button class="button" style="background-color:White;" ng-click="showActionSheet()">
+                        CAMERA
+                    </button>
+                </div>
+                <button class="button icon ion-android-refresh" style="background-color:White;" ng-click="refresh()">
+                </button>
+                <div class="col">
+
+                </div>
+            </div>
+            <!-- <div class="button-bar"> -->
+            <!-- <a class="button" ng-href="tel:{{Detail.aemp1WithAido1.PhoneNumber}}">
                     CALL
                 </a>
                 <button class="button" ng-click="showGoogleMaps()">
@@ -19,8 +48,8 @@
                     CAMERA
                 </button>
                 <button class="button icon ion-android-refresh" ng-click="refresh()">
-            </button>
-            </div>
+            </button> -->
+            <!-- </div> -->
             <div class="item" style="padding: 0px">
                 <div class="row">
                     <div class="col ">
@@ -107,7 +136,7 @@
             {{ item.text }}
         </ion-radio>
         <!-- <input ng-model="cancelJmjm3sItem.Remark" type="text" placeholder="Remark" ng-show="cancelJmjm3sItem.NewItem =='Remark'" > -->
-        <textarea wrap="hard" cols="48px" ng-model="cancelJmjm3sItem.Remark" ng-show="cancelJmjm3sItem.NewItem =='Remark'"  rows="4">
+        <textarea wrap="hard" cols="48px" ng-model="cancelJmjm3sItem.Remark" ng-show="cancelJmjm3sItem.NewItem =='Remark'" rows="4">
         </textarea>
     </script>
 </ion-view>

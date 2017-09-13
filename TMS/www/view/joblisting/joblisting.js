@@ -1,10 +1,10 @@
 'use strict';
-app.controller('JoblistingListCtrl', ['ENV', '$scope', '$state', '$ionicLoading', '$ionicPopup', '$ionicFilterBar', '$ionicActionSheet', '$cordovaNetwork','$timeout', 'ApiService', '$ionicPlatform', '$cordovaSQLite', 'SqlService',
-    function (ENV, $scope, $state, $ionicLoading, $ionicPopup, $ionicFilterBar, $ionicActionSheet, $cordovaNetwork,$timeout, ApiService, $ionicPlatform, $cordovaSQLite, SqlService) {
+app.controller('JoblistingListCtrl', ['ENV', '$scope', '$state', '$ionicLoading', '$ionicPopup', '$ionicFilterBar', '$ionicActionSheet', '$cordovaNetwork', '$timeout', 'ApiService', '$ionicPlatform', '$cordovaSQLite', 'SqlService',
+    function (ENV, $scope, $state, $ionicLoading, $ionicPopup, $ionicFilterBar, $ionicActionSheet, $cordovaNetwork, $timeout, ApiService, $ionicPlatform, $cordovaSQLite, SqlService) {
         var filterBarInstance = null;
         var dataResults = new Array();
         var hmAemp1WithAido1 = new HashMap();
-
+$scope.Refresh=true;
         var getObjAemp1WithAido1 = function (objAemp1WithAido1) {
             var jobs = {
                 key: objAemp1WithAido1.Key,
@@ -39,7 +39,11 @@ app.controller('JoblistingListCtrl', ['ENV', '$scope', '$state', '$ionicLoading'
             });
         };
 
-        var showAemp1WithAido1 = function () {
+
+
+
+        $scope.showAemp1WithAido1 = function () {
+
             if (!ENV.fromWeb) {
                 if ($cordovaNetwork.isOffline()) {
                     ENV.wifi = false;
@@ -48,6 +52,7 @@ app.controller('JoblistingListCtrl', ['ENV', '$scope', '$state', '$ionicLoading'
                 }
             }
             if (ENV.wifi === true) {
+
                 var strSqlFilter = "FilterTime='" + moment(new Date()).format('YYYYMMDD') + "' And DriverCode='" + sessionStorage.getItem("sessionDriverCode") + "'"; // not record
                 SqlService.Select('Aemp1_Aido1', '*', strSqlFilter).then(function (results) {
                     if (results.rows.length > 0) {
@@ -105,9 +110,84 @@ app.controller('JoblistingListCtrl', ['ENV', '$scope', '$state', '$ionicLoading'
                     }
                 });
             }
+
         };
 
-        showAemp1WithAido1();
+        $scope.showAemp1WithAido1();
+
+        $scope.RefreshshowAemp1WithAido1 = function () {
+          $state.reload();  //刷新 整个页面
+            if (!ENV.fromWeb) {
+                if ($cordovaNetwork.isOffline()) {
+                    ENV.wifi = false;
+                } else {
+                    ENV.wifi = true;
+                }
+            }
+            if (ENV.wifi === true) {
+
+                SqlService.Del('Aemp1_Aido1').then(function (res) {
+                    var strSqlFilter = "FilterTime='" + moment(new Date()).format('YYYYMMDD') + "' And DriverCode='" + sessionStorage.getItem("sessionDriverCode") + "'"; // not record
+                    SqlService.Select('Aemp1_Aido1', '*', strSqlFilter).then(function (results) {
+                        if (results.rows.length > 0) {
+                            for (var i = 0; i < results.rows.length; i++) {
+                                var Aemp1WithAido1 = results.rows.item(i);
+                                hmAemp1WithAido1.set(Aemp1WithAido1.Key, Aemp1WithAido1.Key);
+                            }
+                            var objUri = ApiService.Uri(true, '/api/tms/aemp1withaido1');
+                            objUri.addSearch('DriverCode', sessionStorage.getItem("sessionDriverCode"));
+                            ApiService.Get(objUri, true).then(function success(result) {
+                                var results = result.data.results;
+                                if (is.not.empty(results)) {
+                                    $scope.jobs ='';
+                                    for (var i = 0; i < results.length; i++) {
+                                        var objAemp1WithAido1 = results[i];
+                                        var jobs = getObjAemp1WithAido1(objAemp1WithAido1);
+                                        dataResults = dataResults.concat(jobs);
+                                        $scope.jobs = dataResults;
+                                        if (!hmAemp1WithAido1.has(objAemp1WithAido1.Key)) {
+                                            SqlService.Insert('Aemp1_Aido1', objAemp1WithAido1).then(function (res) {});
+                                            getSignature(objAemp1WithAido1);
+                                        }
+                                    }
+                                }
+                            });
+                        } else {
+                            var objUri = ApiService.Uri(true, '/api/tms/aemp1withaido1');
+                            objUri.addSearch('DriverCode', sessionStorage.getItem("sessionDriverCode"));
+                            ApiService.Get(objUri, true).then(function success(result) {
+                                var results = result.data.results;
+                                if (is.not.empty(results)) {
+                                    $scope.jobs ='';
+                                    for (var i = 0; i < results.length; i++) {
+                                        var objAemp1WithAido1 = results[i];
+                                        var jobs = getObjAemp1WithAido1(results[i]);
+                                        dataResults = dataResults.concat(jobs);
+                                        $scope.jobs = dataResults;
+                                        SqlService.Insert('Aemp1_Aido1', objAemp1WithAido1).then(function (res) {});
+                                        getSignature(objAemp1WithAido1);
+
+                                    }
+                                }
+                            });
+                        }
+
+                    });
+
+                });
+            } else {
+                var strSqlFilter = " FilterTime='" + moment(new Date()).format('YYYYMMDD') + "' And DriverCode='" + sessionStorage.getItem("sessionDriverCode") + "'"; // not record
+                SqlService.Select('Aemp1_Aido1', '*', strSqlFilter).then(function (results) {
+                    if (results.rows.length > 0) {
+                        for (var i = 0; i < results.rows.length; i++) {
+                            var objAemp1WithAido1 = getObjAemp1WithAido1(results.rows.item(i));
+                            dataResults = dataResults.concat(objAemp1WithAido1);
+                        }
+                        $scope.jobs = dataResults;
+                    }
+                });
+            }
+        };
 
         $scope.returnMain = function () {
             $state.go('index.login', {}, {
@@ -138,6 +218,7 @@ app.controller('JoblistingListCtrl', ['ENV', '$scope', '$state', '$ionicLoading'
         };
 
         $scope.refreshItems = function () {
+
             if (filterBarInstance) {
                 filterBarInstance();
                 filterBarInstance = null;
@@ -340,29 +421,29 @@ app.controller('JoblistingDetailCtrl', ['ENV', '$scope', '$state', '$ionicAction
         };
 
         $scope.refresh = function () {
-          var objUri = ApiService.Uri(true, '/api/tms/aemp1withaido1');
-          objUri.addSearch('DriverCode', sessionStorage.getItem("sessionDriverCode"));
-          objUri.addSearch('TableName', $scope.Detail.aemp1WithAido1.TableName);
-          objUri.addSearch('Key', $scope.Detail.aemp1WithAido1.Key);
-          ApiService.Get(objUri, true).then(function success(result) {
-              var results = result.data.results;
-              if (is.not.empty(results)) {
-                  var obj= results[0];
-                  // var objTobk1RmRemark = objTobk1;
-                  var filter = " Key='" + obj.Key + "' and TableName='" + obj.TableName + "'";
-                  // delete objTobk1RmRemark.Remark;
-                  // delete objTobk1RmRemark.Key;
-                  delete obj.__type;
-                  // if ($scope.Detail.Tobk1.UpdateRemarkFlag === 'Y') {
-                  //     objTobk1RmRemark.Remark = $scope.Detail.Tobk1.Remark;
-                  //     objTobk1RmRemark.UpdateRemarkFlag = $scope.Detail.Tobk1.UpdateRemarkFlag;
-                  // }
-                  $scope.Detail.aemp1WithAido1 = obj;
-                  SqlService.Update('Aemp1_Aido1', obj, filter).then(function (res) {});
+            var objUri = ApiService.Uri(true, '/api/tms/aemp1withaido1');
+            objUri.addSearch('DriverCode', sessionStorage.getItem("sessionDriverCode"));
+            objUri.addSearch('TableName', $scope.Detail.aemp1WithAido1.TableName);
+            objUri.addSearch('Key', $scope.Detail.aemp1WithAido1.Key);
+            ApiService.Get(objUri, true).then(function success(result) {
+                var results = result.data.results;
+                if (is.not.empty(results)) {
+                    var obj = results[0];
+                    // var objTobk1RmRemark = objTobk1;
+                    var filter = " Key='" + obj.Key + "' and TableName='" + obj.TableName + "'";
+                    // delete objTobk1RmRemark.Remark;
+                    // delete objTobk1RmRemark.Key;
+                    delete obj.__type;
+                    // if ($scope.Detail.Tobk1.UpdateRemarkFlag === 'Y') {
+                    //     objTobk1RmRemark.Remark = $scope.Detail.Tobk1.Remark;
+                    //     objTobk1RmRemark.UpdateRemarkFlag = $scope.Detail.Tobk1.UpdateRemarkFlag;
+                    // }
+                    $scope.Detail.aemp1WithAido1 = obj;
+                    SqlService.Update('Aemp1_Aido1', obj, filter).then(function (res) {});
 
-              }
-          });
-      };
+                }
+            });
+        };
 
         $scope.closeModal = function () {
             $scope.modal_camera.hide();
@@ -396,7 +477,7 @@ app.controller('JoblistingDetailCtrl', ['ENV', '$scope', '$state', '$ionicAction
                             }
                             var UpdatedValue = 'Y';
                             if (!ENV.fromWeb) {
-                                  if ($cordovaNetwork.isOffline()) {
+                                if ($cordovaNetwork.isOffline()) {
                                     ENV.wifi = false;
                                     UpdatedValue = 'N';
                                 } else {
@@ -472,6 +553,7 @@ app.controller('JoblistingConfirmCtrl', ['ENV', '$scope', '$state', '$stateParam
             SqlService.Select('Aemp1_Aido1', '*', strSqlFilter).then(function (results) {
                 if (results.rows.length > 0) {
                     $scope.Confirm.aemp1WithAido1 = results.rows.item(0);
+                    showRaido();
                     if ($scope.Confirm.aemp1WithAido1.TempBase64 !== null && is.not.empty($scope.Confirm.aemp1WithAido1.TempBase64)) {
                         if (is.not.equal(strEemptyBase64, $scope.Confirm.aemp1WithAido1.TempBase64)) {
                             $scope.signature = 'data:image/png;base64,' + $scope.Confirm.aemp1WithAido1.TempBase64;
@@ -480,6 +562,29 @@ app.controller('JoblistingConfirmCtrl', ['ENV', '$scope', '$state', '$stateParam
                 }
             });
         });
+
+        var showRaido = function () {
+            $scope.OnBehalfOfs = [{
+                text: 'Name :' + $scope.Confirm.aemp1WithAido1.DeliveryToName,
+                value: 'CustomerCode'
+            }, {
+                text: 'On Behalf Of : ',
+                value: 'OnBehalfOf'
+            }, ];
+            $scope.OnBehalfOfItem = {
+                NewItem: 'CustomerCode',
+                BehalfName: $scope.Confirm.aemp1WithAido1.SignBy,
+            };
+        };
+        $scope.serverSideChange = function (item) {
+            if ($scope.OnBehalfOfItem.NewItem === item.value) {
+                $scope.Confirm.aemp1WithAido1.OnBehalfName = "";
+                if ($scope.OnBehalfOfItem.NewItem === "OnBehalfOf") {
+                    $scope.Confirm.aemp1WithAido1.OnBehalfName = $scope.OnBehalfOfItem.BehalfName;
+                }
+            }
+
+        };
 
         function resizeCanvas() {
             var ratio = window.devicePixelRatio || 1;
@@ -515,6 +620,11 @@ app.controller('JoblistingConfirmCtrl', ['ENV', '$scope', '$state', '$stateParam
             if (is.not.null($scope.signature)) {
                 signature = $scope.signature.split(',')[1];
             }
+            if ($scope.OnBehalfOfItem.NewItem === 'CustomerCode') {
+                $scope.Confirm.aemp1WithAido1.SignBy = $scope.Confirm.aemp1WithAido1.DeliveryToName;
+            } else {
+                $scope.Confirm.aemp1WithAido1.SignBy = $scope.OnBehalfOfItem.BehalfName;
+            }
             var UpdatedValue = 'Y';
             if (!ENV.fromWeb) {
                 if ($cordovaNetwork.isOffline()) {
@@ -528,7 +638,8 @@ app.controller('JoblistingConfirmCtrl', ['ENV', '$scope', '$state', '$stateParam
             var objAemp1WithAido1 = {
                 StatusCode: 'POD',
                 TempBase64: signature,
-                UpdatedFlag: UpdatedValue
+                UpdatedFlag: UpdatedValue,
+                SignBy: $scope.Confirm.aemp1WithAido1.SignBy
             };
             SqlService.Update('Aemp1_Aido1', objAemp1WithAido1, Aemp1WithAido1Filter).then(function (res) {});
             if (UpdatedValue === 'Y') {
@@ -536,6 +647,7 @@ app.controller('JoblistingConfirmCtrl', ['ENV', '$scope', '$state', '$stateParam
                 objUri.addSearch('TableName', $scope.Confirm.aemp1WithAido1.TableName);
                 objUri.addSearch('Remark', $scope.Confirm.aemp1WithAido1.Remark);
                 objUri.addSearch('Key', $scope.Confirm.aemp1WithAido1.Key);
+                objUri.addSearch('SignBy', $scope.Confirm.aemp1WithAido1.SignBy);
                 ApiService.Get(objUri, true).then(function success(result) {});
                 var jsonData = {
                     'Base64': $scope.signature,
