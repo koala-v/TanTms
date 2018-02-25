@@ -4,7 +4,7 @@ app.controller('JoblistingListCtrl', ['ENV', '$scope', '$state', '$ionicLoading'
         var filterBarInstance = null;
         var dataResults = new Array();
         var hmAemp1WithAido1 = new HashMap();
-$scope.Refresh=true;
+
         var getObjAemp1WithAido1 = function (objAemp1WithAido1) {
             var jobs = {
                 key: objAemp1WithAido1.Key,
@@ -39,11 +39,7 @@ $scope.Refresh=true;
             });
         };
 
-
-
-
         $scope.showAemp1WithAido1 = function () {
-
             if (!ENV.fromWeb) {
                 if ($cordovaNetwork.isOffline()) {
                     ENV.wifi = false;
@@ -52,14 +48,12 @@ $scope.Refresh=true;
                 }
             }
             if (ENV.wifi === true) {
-
                 var strSqlFilter = "FilterTime='" + moment(new Date()).format('YYYYMMDD') + "' And DriverCode='" + sessionStorage.getItem("sessionDriverCode") + "'"; // not record
                 SqlService.Select('Aemp1_Aido1', '*', strSqlFilter).then(function (results) {
                     if (results.rows.length > 0) {
                         for (var i = 0; i < results.rows.length; i++) {
                             var Aemp1WithAido1 = results.rows.item(i);
                             hmAemp1WithAido1.set(Aemp1WithAido1.Key, Aemp1WithAido1.Key);
-
                         }
                         var objUri = ApiService.Uri(true, '/api/tms/aemp1withaido1');
                         objUri.addSearch('DriverCode', sessionStorage.getItem("sessionDriverCode"));
@@ -116,7 +110,7 @@ $scope.Refresh=true;
         $scope.showAemp1WithAido1();
 
         $scope.RefreshshowAemp1WithAido1 = function () {
-          $state.reload();  //刷新 整个页面
+            $state.reload(); //刷新 整个页面
             if (!ENV.fromWeb) {
                 if ($cordovaNetwork.isOffline()) {
                     ENV.wifi = false;
@@ -125,7 +119,6 @@ $scope.Refresh=true;
                 }
             }
             if (ENV.wifi === true) {
-
                 SqlService.Del('Aemp1_Aido1').then(function (res) {
                     var strSqlFilter = "FilterTime='" + moment(new Date()).format('YYYYMMDD') + "' And DriverCode='" + sessionStorage.getItem("sessionDriverCode") + "'"; // not record
                     SqlService.Select('Aemp1_Aido1', '*', strSqlFilter).then(function (results) {
@@ -139,7 +132,7 @@ $scope.Refresh=true;
                             ApiService.Get(objUri, true).then(function success(result) {
                                 var results = result.data.results;
                                 if (is.not.empty(results)) {
-                                    $scope.jobs ='';
+                                    $scope.jobs = '';
                                     for (var i = 0; i < results.length; i++) {
                                         var objAemp1WithAido1 = results[i];
                                         var jobs = getObjAemp1WithAido1(objAemp1WithAido1);
@@ -158,7 +151,7 @@ $scope.Refresh=true;
                             ApiService.Get(objUri, true).then(function success(result) {
                                 var results = result.data.results;
                                 if (is.not.empty(results)) {
-                                    $scope.jobs ='';
+                                    $scope.jobs = '';
                                     for (var i = 0; i < results.length; i++) {
                                         var objAemp1WithAido1 = results[i];
                                         var jobs = getObjAemp1WithAido1(results[i]);
@@ -166,14 +159,11 @@ $scope.Refresh=true;
                                         $scope.jobs = dataResults;
                                         SqlService.Insert('Aemp1_Aido1', objAemp1WithAido1).then(function (res) {});
                                         getSignature(objAemp1WithAido1);
-
                                     }
                                 }
                             });
                         }
-
                     });
-
                 });
             } else {
                 var strSqlFilter = " FilterTime='" + moment(new Date()).format('YYYYMMDD') + "' And DriverCode='" + sessionStorage.getItem("sessionDriverCode") + "'"; // not record
@@ -235,6 +225,13 @@ $scope.Refresh=true;
                 reload: true
             });
         };
+
+
+// $scope.ClickRefresh=function(){
+//   $scope.$on('$ionicView.beforeEnter',function(){
+//       $scope.showAemp1WithAido1();
+//   });
+// };
     }
 ]);
 
